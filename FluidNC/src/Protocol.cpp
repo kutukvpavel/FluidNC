@@ -682,7 +682,9 @@ static void protocol_do_initiate_cycle() {
         sys.suspend.value = 0;  // Break suspend state.
         set_state(pb->is_jog ? State::Jog : State::Cycle);
         Stepper::prep_buffer();  // Initialize step segment buffer before beginning cycle.
-        Stepper::wake_up();
+        //Do not hold motors that are not required for the jog, in order to allow hybrid manual+automatic operation
+        if (pb->is_jog) Stepper::wake_up(pb->steps);
+        else Stepper::wake_up();
     } else {                    // Otherwise, do nothing. Set and resume IDLE state.
         sys.suspend.value = 0;  // Break suspend state.
         set_state(State::Idle);

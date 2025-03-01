@@ -72,11 +72,22 @@ namespace Machine {
             disabled = true;
     }
 
+    void IRAM_ATTR Axes::set_disable(bool disable, const uint32_t axis_activity[MAX_N_AXIS]) {
+        for (int axis = 0; axis < _numberAxis; axis++) {
+            set_disable(axis, axis_activity > 0 ? disable : true);
+        }
+        Axes::set_disable_shared(disable);
+    }
+
     void IRAM_ATTR Axes::set_disable(bool disable) {
         for (int axis = 0; axis < _numberAxis; axis++) {
             set_disable(axis, disable);
         }
+        Axes::set_disable_shared(disable);
+    }
 
+    void IRAM_ATTR Axes::set_disable_shared(bool disable)
+    {
         _sharedStepperDisable.synchronousWrite(disable);
 
         if (!disable && disabled) {

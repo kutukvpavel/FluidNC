@@ -20,6 +20,11 @@
 
 using namespace Stepper;
 
+namespace Stepper
+{
+    static bool wake_up_private();
+} // namespace Stepper
+
 static bool awake = false;
 
 // Stores the planner block Bresenham algorithm execution data for the segments in the segment
@@ -275,16 +280,25 @@ bool IRAM_ATTR Stepper::pulse_func() {
 }
 
 // enabled. Startup init and limits call this function but shouldn't start the cycle.
-void Stepper::wake_up() {
-    if (awake) {
-        return;
-    }
+static bool Stepper::wake_up_private()
+{
+    if (awake) return true;
     awake = true;
     // Cancel any pending stepper disable
     protocol_cancel_disable_steppers();
+    return false;
+}
+void Stepper::wake_up(uint32_t axis_activity[MAX_N_AXIS]) {
+    if (wake_up_private()) return;
+    // Enable stepper drivers.
+    Axes::set_disable(false, axis_activity);
+    // Enable Stepping Driver Interrupt
+    Stepping::startTimer();
+}
+void Stepper::wake_up() {
+    if (wake_up_private()) return;
     // Enable stepper drivers.
     Axes::set_disable(false);
-
     // Enable Stepping Driver Interrupt
     Stepping::startTimer();
 }
