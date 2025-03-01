@@ -1,3 +1,7 @@
+This fork adds the following functionality to FluidNC:
+ - Backlash compensation (ported from RabbidGRBL and pull-request #24)
+ - "Hybrid" jogging, i.e. jogging enables only the motors required for motion
+
 <img src="https://github.com/bdring/FluidNC/wiki/images/logos/FluidNC.svg" width="600">
 
 ## Introduction
