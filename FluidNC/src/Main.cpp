@@ -7,6 +7,7 @@
 #    include "Main.h"
 #    include "Machine/MachineConfig.h"
 
+#    include "Backlash.h"
 #    include "Config.h"
 #    include "Report.h"
 #    include "Settings.h"
@@ -99,6 +100,7 @@ void setup() {
         config->_userInputs->init();
 
         Axes::init();
+        Backlash::init();
 
         config->_control->init();
 

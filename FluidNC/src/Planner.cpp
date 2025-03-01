@@ -416,9 +416,12 @@ bool plan_buffer_line(float* target, plan_line_data_t* pl_data) {
         float nominal_speed = plan_compute_profile_nominal_speed(block);
         plan_compute_profile_parameters(block, nominal_speed, pl.previous_nominal_speed);
         pl.previous_nominal_speed = nominal_speed;
-        // Update previous path unit_vector and planner position.
-        copyAxes(pl.previous_unit_vec, unit_vec);
-        copyAxes(pl.position, target_steps);
+        if (!(block->motion.backlashMotion))
+        {
+            // Update previous path unit_vector and planner position.
+            copyAxes(pl.previous_unit_vec, unit_vec);
+            copyAxes(pl.position, target_steps);
+        }
         // New block is all set. Update buffer head and next buffer head indices.
         block_buffer_head = next_buffer_head;
         next_buffer_head  = plan_next_block_index(block_buffer_head);

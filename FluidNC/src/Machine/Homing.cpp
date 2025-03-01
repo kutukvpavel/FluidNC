@@ -1,5 +1,6 @@
 #include "Homing.h"
 
+#include "../Backlash.h"
 #include "../System.h"    // sys.*
 #include "../Stepper.h"   // st_wake
 #include "../Protocol.h"  // protocol_handle_events
@@ -359,6 +360,7 @@ namespace Machine {
         // Sync gcode parser and planner positions to homed position.
         gc_sync_position();
         plan_sync_position();
+        Backlash::sync();
 
         Stepping::endLowLatency();
 
