@@ -20,6 +20,11 @@
 
 using namespace Stepper;
 
+namespace Stepper
+{
+    static bool wake_up_private();
+} // namespace Stepper
+
 static bool awake = false;
 
 // Stores the planner block Bresenham algorithm execution data for the segments in the segment
@@ -33,6 +38,7 @@ struct st_block_t {
     uint32_t step_event_count;
     uint8_t  direction_bits;
     bool     is_pwm_rate_adjusted;  // Tracks motions that require constant laser power/rate
+    bool     backlash_motion = false;
 };
 static volatile st_block_t* st_block_buffer = nullptr;
 
@@ -194,6 +200,8 @@ uint32_t Stepper::isr_count;  // for debugging only
  * Returns true if step interrupts should continue
  */
 bool IRAM_ATTR Stepper::pulse_func() {
+    static bool hidden_move = false;
+
 #ifdef DEBUG_STEPPER_ISR
     isr_count++;
 #endif
@@ -203,7 +211,7 @@ bool IRAM_ATTR Stepper::pulse_func() {
     }
     auto n_axis = Axes::_numberAxis;
 
-    Stepping::step(st.step_outbits, st.dir_outbits);
+    Stepping::step(st.step_outbits, st.dir_outbits, !hidden_move);
     st.step_outbits = 0;
 
     // If there is no step segment, attempt to pop one from the stepper buffer
@@ -224,6 +232,7 @@ bool IRAM_ATTR Stepper::pulse_func() {
                 for (int axis = 0; axis < n_axis; axis++) {
                     st.counter[axis] = st.exec_block->step_event_count >> 1;
                 }
+                hidden_move = st.exec_block->backlash_motion;
             }
 
             st.dir_outbits = st.exec_block->direction_bits;
@@ -271,16 +280,25 @@ bool IRAM_ATTR Stepper::pulse_func() {
 }
 
 // enabled. Startup init and limits call this function but shouldn't start the cycle.
-void Stepper::wake_up() {
-    if (awake) {
-        return;
-    }
+static bool Stepper::wake_up_private()
+{
+    if (awake) return true;
     awake = true;
     // Cancel any pending stepper disable
     protocol_cancel_disable_steppers();
+    return false;
+}
+void Stepper::wake_up(uint32_t axis_activity[MAX_N_AXIS]) {
+    if (wake_up_private()) return;
+    // Enable stepper drivers.
+    Axes::set_disable(false, axis_activity);
+    // Enable Stepping Driver Interrupt
+    Stepping::startTimer();
+}
+void Stepper::wake_up() {
+    if (wake_up_private()) return;
     // Enable stepper drivers.
     Axes::set_disable(false);
-
     // Enable Stepping Driver Interrupt
     Stepping::startTimer();
 }
@@ -420,6 +438,7 @@ void Stepper::prep_buffer() {
                     st_prep_block->steps[idx] = pl_block->steps[idx] << maxAmassLevel;
                 }
                 st_prep_block->step_event_count = pl_block->step_event_count << maxAmassLevel;
+                st_prep_block->backlash_motion = pl_block->motion.backlashMotion;
 
                 // Initialize segment buffer data for generating the segments.
                 prep.steps_remaining  = (float)pl_block->step_event_count;

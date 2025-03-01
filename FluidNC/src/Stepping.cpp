@@ -120,7 +120,7 @@ void Stepping::unlimit(int axis, int motor) {
     }
 }
 
-void IRAM_ATTR Stepping::step(uint8_t step_mask, uint8_t dir_mask) {
+void IRAM_ATTR Stepping::step(uint8_t step_mask, uint8_t dir_mask, bool count) {
     // Set the direction pins, but optimize for the common
     // situation where the direction bits haven't changed.
     static uint8_t previous_dir_mask = 255;  // should never be this value
@@ -153,7 +153,7 @@ void IRAM_ATTR Stepping::step(uint8_t step_mask, uint8_t dir_mask) {
     for (size_t axis = 0; axis < Axes::_numberAxis; axis++) {
         if (bitnum_is_true(step_mask, axis)) {
             auto increment = bitnum_is_true(dir_mask, axis) ? -1 : 1;
-            axis_steps[axis] += increment;
+            if (count) axis_steps[axis] += increment;
             for (size_t motor = 0; motor < MAX_MOTORS_PER_AXIS; motor++) {
                 auto m = axis_motors[axis][motor];
                 if (m && !m->blocked && !m->limited) {

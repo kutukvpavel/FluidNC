@@ -7,6 +7,7 @@
 
 #include "Machine/MachineConfig.h"
 #include "Machine/Homing.h"  // run_cycles
+#include "Backlash.h"
 #include "Limits.h"          // limits_soft_check
 #include "Report.h"          // report_over_counter
 #include "Protocol.h"        // protocol_execute_realtime
@@ -69,6 +70,7 @@ bool mc_move_motors(float* target, plan_line_data_t* pl_data) {
     // parser and planner are separate from the system machine positions, this is doable.
     // If the buffer is full: good! That means we are well ahead of the robot.
     // Remain in this loop until there is room in the buffer.
+    Backlash::compensate(target, pl_data);
 
     while (plan_check_full_buffer()) {
         protocol_auto_cycle_start();  // Auto-cycle start when buffer is full.
@@ -340,6 +342,7 @@ GCUpdatePos mc_probe_cycle(float* target, plan_line_data_t* pl_data, bool away, 
     Stepper::reset();      // Reset step segment buffer.
     plan_reset();          // Reset planner buffer. Zero planner positions. Ensure probing motion is cleared.
     plan_sync_position();  // Sync planner position to current machine position.
+    Backlash::sync();
     if (MESSAGE_PROBE_COORDINATES) {
         // All done! Output the probe position as message.
         report_probe_parameters(allChannels);

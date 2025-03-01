@@ -24,6 +24,7 @@ namespace Machine {
     Pin Axes::_sharedStepperReset;
 
     uint32_t Axes::_homing_runs = 2;  // Number of Approach/Pulloff cycles
+    bool Axes::_hybrid_jogging = false; //Enable only the motors required for motion during jogging
 
     int Axes::_numberAxis = 0;
 
@@ -72,11 +73,22 @@ namespace Machine {
             disabled = true;
     }
 
+    void IRAM_ATTR Axes::set_disable(bool disable, const uint32_t axis_activity[MAX_N_AXIS]) {
+        for (int axis = 0; axis < _numberAxis; axis++) {
+            set_disable(axis, axis_activity > 0 ? disable : true);
+        }
+        Axes::set_disable_shared(disable);
+    }
+
     void IRAM_ATTR Axes::set_disable(bool disable) {
         for (int axis = 0; axis < _numberAxis; axis++) {
             set_disable(axis, disable);
         }
+        Axes::set_disable_shared(disable);
+    }
 
+    void IRAM_ATTR Axes::set_disable_shared(bool disable)
+    {
         _sharedStepperDisable.synchronousWrite(disable);
 
         if (!disable && disabled) {
@@ -155,6 +167,7 @@ namespace Machine {
         handler.item("shared_stepper_disable_pin", _sharedStepperDisable);
         handler.item("shared_stepper_reset_pin", _sharedStepperReset);
         handler.item("homing_runs", _homing_runs, 1, 5);
+        handler.item("hybrid_jogging", _hybrid_jogging);
 
         // Handle axis names xyzabc.  handler.section is inferred
         // from a template.

@@ -10,6 +10,7 @@
 */
 
 #include "EnumItem.h"
+#include "Config.h"
 
 #include <cstdint>
 
@@ -20,6 +21,7 @@ namespace Stepper {
 
     // Enable steppers, but cycle does not start unless called by motion control or realtime command.
     void wake_up();
+    void wake_up(uint32_t axis_activity[MAX_N_AXIS]);
 
     // Stops stepping and disables stepper (not ISR-safe)
     void go_idle();

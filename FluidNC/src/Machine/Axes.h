@@ -16,6 +16,8 @@ namespace Machine {
     class Axes : public Configuration::Configurable {
         bool _switchedStepper = false;
 
+        static void set_disable_shared(bool disable);
+
     public:
         static constexpr const char* _names = "XYZABC";
 
@@ -35,6 +37,7 @@ namespace Machine {
         static Pin _sharedStepperReset;
 
         static uint32_t _homing_runs;  // Number of Approach/Pulloff cycles
+        static bool _hybrid_jogging;
 
         static inline char axisName(int index) { return index < MAX_N_AXIS ? _names[index] : '?'; }  // returns axis letter
 
@@ -73,6 +76,7 @@ namespace Machine {
         static MotorMask set_homing_mode(AxisMask homing_mask, bool isHoming);
 
         static void set_disable(int axis, bool disable);
+        static void set_disable(bool disable, const uint32_t axis_activity[MAX_N_AXIS]);
         static void set_disable(bool disable);
         static void step(uint8_t step_mask, uint8_t dir_mask);
         static void unstep();
