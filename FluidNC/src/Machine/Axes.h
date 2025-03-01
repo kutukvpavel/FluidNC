@@ -37,6 +37,7 @@ namespace Machine {
         static Pin _sharedStepperReset;
 
         static uint32_t _homing_runs;  // Number of Approach/Pulloff cycles
+        static bool _hybrid_jogging;
 
         static inline char axisName(int index) { return index < MAX_N_AXIS ? _names[index] : '?'; }  // returns axis letter
 

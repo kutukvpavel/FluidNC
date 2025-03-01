@@ -24,6 +24,7 @@ namespace Machine {
     Pin Axes::_sharedStepperReset;
 
     uint32_t Axes::_homing_runs = 2;  // Number of Approach/Pulloff cycles
+    bool Axes::_hybrid_jogging = false; //Enable only the motors required for motion during jogging
 
     int Axes::_numberAxis = 0;
 
@@ -166,6 +167,7 @@ namespace Machine {
         handler.item("shared_stepper_disable_pin", _sharedStepperDisable);
         handler.item("shared_stepper_reset_pin", _sharedStepperReset);
         handler.item("homing_runs", _homing_runs, 1, 5);
+        handler.item("hybrid_jogging", _hybrid_jogging);
 
         // Handle axis names xyzabc.  handler.section is inferred
         // from a template.
