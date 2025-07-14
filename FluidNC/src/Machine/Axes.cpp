@@ -75,7 +75,7 @@ namespace Machine {
 
     void IRAM_ATTR Axes::set_disable(bool disable, const uint32_t axis_activity[MAX_N_AXIS]) {
         for (int axis = 0; axis < _numberAxis; axis++) {
-            set_disable(axis, axis_activity > 0 ? disable : true);
+            set_disable(axis, (axis_activity[axis] > 0) ? disable : true);
         }
         Axes::set_disable_shared(disable);
     }
