@@ -38,6 +38,8 @@ namespace Machine {
 
         static uint32_t _homing_runs;  // Number of Approach/Pulloff cycles
         static bool _hybrid_jogging;
+        static bool _jog_cancel_hard_stop;
+        static bool _feed_hold_hard_stop;
 
         static inline char axisName(int index) { return index < MAX_N_AXIS ? _names[index] : '?'; }  // returns axis letter
 

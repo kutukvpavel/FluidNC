@@ -25,6 +25,8 @@ namespace Machine {
 
     uint32_t Axes::_homing_runs = 2;  // Number of Approach/Pulloff cycles
     bool Axes::_hybrid_jogging = false; //Enable only the motors required for motion during jogging
+    bool Axes::_jog_cancel_hard_stop = false; //Enable abrupt stop when jog cancel command is issued (no deceleration)
+    bool Axes::_feed_hold_hard_stop = false; //Enable abrupt stop when feed hold command is issued (no deceleration)
 
     int Axes::_numberAxis = 0;
 
@@ -168,6 +170,8 @@ namespace Machine {
         handler.item("shared_stepper_reset_pin", _sharedStepperReset);
         handler.item("homing_runs", _homing_runs, 1, 5);
         handler.item("hybrid_jogging", _hybrid_jogging);
+        handler.item("jog_cancel_hard_stop", _jog_cancel_hard_stop);
+        handler.item("feed_hold_hard_stop", _feed_hold_hard_stop);
 
         // Handle axis names xyzabc.  handler.section is inferred
         // from a template.

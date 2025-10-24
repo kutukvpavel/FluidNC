@@ -1,6 +1,12 @@
 This fork adds the following functionality to FluidNC:
- - Backlash compensation (ported from RabbidGRBL and pull-request #24)
- - "Hybrid" jogging, i.e. jogging enables only the motors required for motion
+ - Backlash compensation (ported from RabbidGRBL and pull-request #24) - does not work yet;
+ - "Hybrid" jogging, i.e. jogging enables only the motors required for motion. This is useful for "hybrid" operation of the machine, when FluidNC jogging is used to achieve automatic feed on a subset of axes, while an operator is manually controlling the left over axis/axes;
+ - A setting to enable hard stop on feed hold and jog cancel (reverses commit 218cb7f). This is useful for "hybrid" operation of the machine, when FluidNC jogging is used to achieve automatic feed. When this setting is on, jog can be stopped precisely.
+
+Corresponding new configuration parameters are:
+ - TBD
+ - Axis/hybrid_jogging (bool)
+ - Axis/feed_hold_hard_stop (bool) and Axis/jog_cancel_hard_stop (bool)
 
 <img src="https://github.com/bdring/FluidNC/wiki/images/logos/FluidNC.svg" width="600">
 
