@@ -739,12 +739,17 @@ static void protocol_do_cycle_start() {
                 }
             }
             break;
+        case State::Jog: //Keep track of active axes during jogging if hybrid joggin is enabled
+            if (Axes::_hybrid_jogging) {
+                plan_block_t* pb;
+                if (pb = plan_get_current_block()) Axes::update_disable(false, pb->steps);
+            }
+            break;
         case State::ConfigAlarm:
         case State::Alarm:
         case State::CheckMode:
         case State::Sleep:
         case State::Cycle:
-        case State::Jog:
             break;
     }
 }
